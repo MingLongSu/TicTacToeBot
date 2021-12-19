@@ -27,6 +27,9 @@ ttt = commands.Bot(command_prefix='>', intents=intents)
 # loading on_join cog
 ttt.load_extension('tictactoe_cogs.on_join.on_join')
 
+# loading set_ttt_channel cog
+ttt.load_extension('tictactoe_cogs.set_ttt_channel.set_ttt_channel')
+
 # to ensure that the bot is running
 @ttt.event
 async def on_ready():

@@ -11,10 +11,10 @@ class On_Join(commands.Cog):
     def __init__(self, ttt):
         self.ttt = ttt
 
-    # to tell if the module is ready
+    # to tell if the cog is ready
     @commands.Cog.listener()
     async def on_ready(self):
-        print('on_join ready!')
+        print('on_join is ready!')
 
     # introductory message when the bot first joins the server
     @commands.Cog.listener()

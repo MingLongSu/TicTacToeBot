@@ -1,9 +1,11 @@
 # imports
-from discord.ext.commands.core import command
 import dotenv 
 
 import os
 
+from discord import Status
+from discord.activity import Activity
+from discord.enums import ActivityType
 from discord import Intents
 from discord.ext import commands
 from discord import Embed
@@ -22,9 +24,21 @@ intents = Intents.all()
 # establishing the prefix to the bot
 ttt = commands.Bot(command_prefix='>', intents=intents)
 
+# loading on_join cog
+ttt.load_extension('tictactoe_cogs.on_join.on_join')
+
+# to ensure that the bot is running
+@ttt.event
+async def on_ready():
+    print('ttt bot is ready')
+
 # sends embedded message introducing the bot's self to the requesting user
 @ttt.command(aliases=['TTT'])
 async def TicTacToe(context):
+
+    # sets up the status of the bot
+    await ttt.change_presence(activity=Activity(type=ActivityType.playing, name=f'with {len(ttt.users)} gaming gamers!'), status=Status.onlilne, afk=False)
+
     ttt_greet=Embed(
         title=(':x: Hello, there! I\'m Tic Tac Toe Bot! :o:'),
         description=('''You\'ve probably guessed it! I\'m here to provide your server with the 

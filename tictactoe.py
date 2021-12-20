@@ -1,6 +1,5 @@
 # imports
 import dotenv 
-
 import os
 
 from discord import Status
@@ -30,6 +29,9 @@ ttt.load_extension('tictactoe_cogs.on_join.on_join')
 # loading set_ttt_channel cog
 ttt.load_extension('tictactoe_cogs.set_ttt_channel.set_ttt_channel')
 
+# loading queue cog
+ttt.load_extension('tictactoe_cogs.queue.queue')
+
 # to ensure that the bot is running
 @ttt.event
 async def on_ready():
@@ -44,9 +46,7 @@ async def TicTacToe(context):
 
     ttt_greet=Embed(
         title=(':x: Hello, there! I\'m Tic Tac Toe Bot! :o:'),
-        description=('''You\'ve probably guessed it! I\'m here to provide your server with the 
-                        ability to play tic tac toe with your friends. If you\'re looking for a 
-                        challenge, don\'t look any further! I\m right in fron of you!''' ), 
+        description=('''You\'ve probably guessed it! I\'m here to provide your server with the ability to play tic tac toe with your friends. If you\'re looking for a challenge, don\'t look any further! I\m right in fron of you!''' ), 
         colour=Colour.from_rgb(246,154,7)
     )
     ttt_greet.set_thumbnail(url=ttt.user.avatar_url)

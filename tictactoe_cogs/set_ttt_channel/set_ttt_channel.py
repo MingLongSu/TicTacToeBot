@@ -4,7 +4,6 @@ from discord import Colour
 
 from tictactoe_cogs.set_ttt_channel.set_ttt_channel_helpers import get_all_guilds, overwrite_all_guilds
 
-
 class Set_TTT_Channel(commands.Cog):
     def __init__(self, ttt):
         self.ttt = ttt

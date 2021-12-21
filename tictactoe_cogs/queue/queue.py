@@ -3,7 +3,7 @@ from discord import Embed
 from discord import Member
 from discord import Colour
 
-from tictactoe_cogs.queue.queue_helpers import add_to_queue, delete_from_queue, get_ttt_channel, initialise_queue, is_queue_empty, is_queue_full, is_queue_spam
+from tictactoe_cogs.queue.queue_helpers import add_to_queue, delete_from_queue, get_queue_data, get_ttt_channel, initialise_player_profile, initialise_queue, is_queue_empty, is_queue_full, is_queue_spam, make_queue_display
 
 class Queue(commands.Cog):
     def __init__(self, ttt):
@@ -20,7 +20,6 @@ class Queue(commands.Cog):
         # fetching the ttt channel
         ttt_channel = self.ttt.get_channel(get_ttt_channel(context.guild.id))
 
-
         if (member.id == self.ttt.user.id): # playing against the bot
             print("Feature to implement for another day")
 
@@ -32,6 +31,10 @@ class Queue(commands.Cog):
             # initialiasing the queue of the players to the json file
             initialise_queue(p1.id)
             initialise_queue(p2.id)
+
+            # initialising the player profile of both players
+            initialise_player_profile(p1.id)
+            initialise_player_profile(p2.id)
 
             # check if the queue of p2 is full 
             is_full = is_queue_full(p2.id)
@@ -109,6 +112,44 @@ class Queue(commands.Cog):
             null_remove_msg.set_thumbnail(url=self.ttt.user.avatar_url)
             null_remove_msg.set_footer(text=f'Use \'>queue_of @{ p.name }\' to check your own queue!', icon_url=self.ttt.user.avatar_url)
             await ttt_channel.send(embed=null_remove_msg)
+
+    # allows use to view the queue of any player (including self), aside from bots
+    @commands.command(aliases=['view_queue'])
+    async def queue_of(self, context, member:Member):
+        ttt_channel = self.ttt.get_channel(get_ttt_channel(context.guild.id))
+
+        # initialising the queue of @'d member in case they never requested for a game
+        initialise_queue(member.id)
+
+        # initialising the player profile of the @'d member
+        initialise_player_profile(member.id)
+
+        if (member.bot):
+            bot_msg=Embed(
+                title=(':no_entry_sign: Hey! You just tried to view the queue of a bot!'),
+                description=('If you didn\'t know, bots don\'t have a queue! Also, the only bot you can face is the master of tic tac toe being me.'),
+                colour=Colour.from_rgb(246,154,7)
+            )
+            bot_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+            bot_msg.set_footer(text='Use \'>queue_of @player_name\' to check another player\'s queue!', icon_url=self.ttt.user.avatar_url)
+            await ttt_channel.send(embed=bot_msg)
+        else:
+            player_queue_data = make_queue_display(member.id)
+
+            player_queue_msg=Embed(
+                title=(f':x: { member.name }\'s queue! :o:'),
+                description=(''), 
+                colour=Colour.from_rgb(246,154,7)
+            )
+            player_queue_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+            player_queue_msg.set_footer(text='Use \'>queue_of @player_name\' to check another player\'s queue!', icon_url=self.ttt.user.avatar_url)
+            for i in range(len(player_queue_data)):
+                player_queue_msg.add_field(
+                    name=(f'{ i + 1 }. { self.ttt.get_user(player_queue_data[i][0]) }'),
+                    value=(f'Wins: { player_queue_data[i][1] } Losses: { player_queue_data[i][2] }'),
+                    inline=False
+                )
+            await ttt_channel.send(embed=player_queue_msg)     
 
 def setup(ttt):
     ttt.add_cog(Queue(ttt))

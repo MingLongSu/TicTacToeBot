@@ -1,4 +1,6 @@
 import json
+from os import remove
+import random
 
 # gets the ttt channel
 def get_ttt_channel(guild_id):
@@ -44,7 +46,7 @@ def is_queue_spam(p1_id, p2_id):
 
     return p1_id in queue_data[f'{ p2_id }']['queue']
 
-# checks if queue is empty
+# checks if queue is empty: True when empty, False otherwise
 def is_queue_empty(p_id):
     p_queue = get_queue_data()[f'{ p_id }']['queue']
 
@@ -69,7 +71,7 @@ def add_to_queue(p1_id, p2_id):
 
 # removes the player on the dequeue pointer from the a queue list 
 def delete_from_queue(p_id):
-    queue_data = get_queue_data(p_id)
+    queue_data = get_queue_data()
 
     dp = queue_data[f'{ p_id }']['dequeue_pointer']
     queue_data[f'{ p_id }']['queue'][dp % 5] = None
@@ -86,8 +88,8 @@ def make_queue_display(p_id):
 
     display_queue_to_send = []
 
-    def recurse_add(start, end, queue, display_queue):
-        if (queue[start % 5] != None):
+    def recurse_add(start, end, queue, display_queue): 
+        if (queue[start % 5] != None): # SMALL ISSUE HERE !!!
             curr_queued_player_id = queue[start % 5]
             curr_queued_payer_wins = player_profile_data[f'{ p_id }']['wins']
             curr_queue_player_losses = player_profile_data[f'{ p_id }']['losses']
@@ -126,3 +128,50 @@ def initialise_player_profile(p_id):
 
     overwrite_player_profiles_data(player_profile_data)
 
+# gets currently running games data
+def get_current_games():
+    with open('./data/current_games.json', 'r') as file:
+        current_games_data = json.load(file)
+
+    return current_games_data
+
+# overwrites currently running games data
+def overwrite_current_games(current_games_data):
+    with open('./data/current_games.json', 'w') as file:
+        json.dump(current_games_data, file, indent=len(current_games_data))
+
+# checks if the current user is in game
+def is_in_game(p_id):
+    current_games = get_current_games()
+
+    is_gaming = False
+
+    for game in current_games:
+        if (game.index(f'{ p_id }') != -1):
+            is_gaming = True
+            break
+
+    return is_gaming
+
+# adds an accepted match to the current_games file, and returns the id of who was accepted
+def add_to_current_games(p_id):
+    current_games_data = get_current_games()
+    queue_data = get_queue_data()
+    dp = queue_data[f'{ p_id }']['dequeue_pointer']
+    p2_id = queue_data[f'{ p_id }']['queue'][dp % 5]
+
+    turn = random.randrange(0,2)
+    if (turn == 0):
+        turn = p_id
+    else:
+        turn = p2_id
+
+    current_games_data[f'{ p_id }, { p2_id }']={}
+    current_games_data[f'{ p_id }, { p2_id }']['turn']=turn
+    current_games_data[f'{ p_id }, { p2_id }']['board']=['blue_square', 'blue_square', 'blue_square', 
+                                                         'blue_square', 'blue_square', 'blue_square', 
+                                                         'blue_square', 'blue_square', 'blue_square']
+
+    overwrite_current_games(current_games_data)
+    delete_from_queue(p_id)
+    return p2_id

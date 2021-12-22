@@ -3,7 +3,7 @@ from discord import Embed
 from discord import Member
 from discord import Colour
 
-from tictactoe_cogs.queue.queue_helpers import add_to_queue, delete_from_queue, get_queue_data, get_ttt_channel, initialise_player_profile, initialise_queue, is_queue_empty, is_queue_full, is_queue_spam, make_queue_display
+from tictactoe_cogs.queue.queue_helpers import add_to_current_games, add_to_queue, delete_from_queue, get_queue_data, get_ttt_channel, initialise_player_profile, initialise_queue, is_in_game, is_queue_empty, is_queue_full, is_queue_spam, make_queue_display
 
 class Queue(commands.Cog):
     def __init__(self, ttt):
@@ -85,7 +85,7 @@ class Queue(commands.Cog):
     # removes the first player in the queue of a player
     @commands.command(aliases=['remove', 'ttt_r', 'skip'])
     async def ttt_skip_curr_player(self, context):
-        ttt_channel = get_ttt_channel(context.guild.id)
+        ttt_channel = self.ttt.get_channel(get_ttt_channel(context.guild.id))
 
         p = context.author
 
@@ -150,6 +150,44 @@ class Queue(commands.Cog):
                     inline=False
                 )
             await ttt_channel.send(embed=player_queue_msg)     
+
+    # accepting user requests
+    @commands.command(aliases=['accept'])
+    async def accept_curr_game(self, context):
+        ttt_channel = self.ttt.get_channel(get_ttt_channel(context.guild.id))
+
+        # initialising queues
+        initialise_queue(context.author.id)
+
+        # initialising player profiles
+        initialise_player_profile(context.author.id)
+
+        # checks if the queue is empty
+        is_empty = is_queue_empty(context.author.id)
+
+        # checks if the acceptor or player are already in a game
+        is_gaming = is_in_game(context.author.id)
+
+        if (not is_empty and not is_gaming):
+            p2 = self.ttt.get_user(add_to_current_games(context.author.id))
+
+            challenge_msg=Embed(
+                title=(f'{ context.author.name } vs. { p2.name }!'),
+                description=(f'{ context.author.mention } has accepted a game against { p2.mention }! May the greater player be victorious!'),
+                colour=Colour.from_rgb(246,154,7)
+            )
+            challenge_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+            challenge_msg.set_footer(text='Use \'>set_piece\' to select your tic-tac-toe game pieces!')
+            await ttt_channel.send(embed=challenge_msg)
+        else:
+            fail_msg=Embed(
+                title=(f':no_entry_sign: Oh, { context.author.name }, an error occurred!'),
+                description=('There is currently no one in your queue or your\'re currently in a match! Please finish your game first or request for a game against either other player or myself, the master of TTT!'),
+                colour=Colour.from_rgb(246,154,7)
+            )
+            fail_msg.set_footer(text=f'Use \'>request @player_name\' to request a game with another player!', icon_url=self.ttt.user.avatar_url)
+            fail_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+            await ttt_channel.send(embed=fail_msg)
 
 def setup(ttt):
     ttt.add_cog(Queue(ttt))

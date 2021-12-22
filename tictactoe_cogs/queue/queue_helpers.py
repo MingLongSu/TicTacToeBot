@@ -7,7 +7,7 @@ def get_ttt_channel(guild_id):
     with open('./data/all_guilds.json', 'r') as file:
         all_guild_data=json.load(file)
 
-    return all_guild_data[f'{ guild_id }']['ttt_channel'] or None
+    return all_guild_data[f'{ guild_id }']['ttt_channel']
 
 # gets the ttt queue data
 def get_queue_data():
@@ -89,7 +89,7 @@ def make_queue_display(p_id):
     display_queue_to_send = []
 
     def recurse_add(start, end, queue, display_queue): 
-        if (queue[start % 5] != None): # SMALL ISSUE HERE !!!
+        if (queue[start % 5] != None): 
             curr_queued_player_id = queue[start % 5]
             curr_queued_payer_wins = player_profile_data[f'{ p_id }']['wins']
             curr_queue_player_losses = player_profile_data[f'{ p_id }']['losses']
@@ -147,8 +147,8 @@ def is_in_game(p_id):
     is_gaming = False
 
     for game in current_games:
-        if (game.index(f'{ p_id }') != -1):
-            is_gaming = True
+        if (game.find(f'{ p_id }') != -1):
+            is_gaming = current_games[game]['ready?']
             break
 
     return is_gaming
@@ -168,6 +168,9 @@ def add_to_current_games(p_id):
 
     current_games_data[f'{ p_id }, { p2_id }']={}
     current_games_data[f'{ p_id }, { p2_id }']['turn']=turn
+    current_games_data[f'{ p_id }, { p2_id }']['ready?']=False
+    current_games_data[f'{ p_id }, { p2_id }'][f'{ p_id }']=None
+    current_games_data[f'{ p_id }, { p2_id }'][f'{ p2_id }']=None
     current_games_data[f'{ p_id }, { p2_id }']['board']=['blue_square', 'blue_square', 'blue_square', 
                                                          'blue_square', 'blue_square', 'blue_square', 
                                                          'blue_square', 'blue_square', 'blue_square']
@@ -175,3 +178,45 @@ def add_to_current_games(p_id):
     overwrite_current_games(current_games_data)
     delete_from_queue(p_id)
     return p2_id
+
+# gets the game given a user
+def get_player_game_stats(p_id):
+    current_games_data = get_current_games()
+
+    user_game = None
+
+    for game in current_games_data:
+        if (game.find(f'{ p_id }') != -1):
+            user_game = current_games_data[game]
+            break
+
+    return user_game
+
+# get player game
+def get_player_game(p_id):
+    current_games_data = get_current_games()
+
+    user_game = None
+
+    for game in current_games_data:
+        if (game.find(f'{ p_id }') != -1):
+            user_game = game
+            break
+
+    return user_game
+
+# checks whether or not a player has already set an emoji for the game
+def is_set_emoji(p_id):
+    user_game = get_player_game_stats(p_id)
+
+    return user_game[f'{ p_id }'] != None
+
+
+# sets the in game emoji for a player
+def set_emoji(p_id, reaction):
+    current_games_data = get_current_games()
+    player_game = get_player_game(p_id)
+
+    current_games_data[player_game][f'{ p_id }'] = reaction
+
+    overwrite_current_games(current_games_data)

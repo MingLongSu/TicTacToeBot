@@ -1,5 +1,4 @@
 import json
-from os import remove
 import random
 
 # gets the ttt channel
@@ -140,7 +139,7 @@ def overwrite_current_games(current_games_data):
     with open('./data/current_games.json', 'w') as file:
         json.dump(current_games_data, file, indent=len(current_games_data))
 
-# checks if the current user is in game
+# checks if the current user has already started a game
 def is_in_game(p_id):
     current_games = get_current_games()
 
@@ -148,10 +147,23 @@ def is_in_game(p_id):
 
     for game in current_games:
         if (game.find(f'{ p_id }') != -1):
-            is_gaming = current_games[game]['ready?']
+            is_gaming = True
             break
 
     return is_gaming
+
+# checks if the current user's game has already started
+def is_game_ready(p_id):
+    current_games = get_current_games()
+
+    is_ready = False
+
+    for game in current_games:
+        if (game.find(f'{ p_id }') != -1):
+            is_ready = current_games[game]['ready?']
+            break
+
+    return is_ready
 
 # adds an accepted match to the current_games file, and returns the id of who was accepted
 def add_to_current_games(p_id):
@@ -171,9 +183,9 @@ def add_to_current_games(p_id):
     current_games_data[f'{ p_id }, { p2_id }']['ready?']=False
     current_games_data[f'{ p_id }, { p2_id }'][f'{ p_id }']=None
     current_games_data[f'{ p_id }, { p2_id }'][f'{ p2_id }']=None
-    current_games_data[f'{ p_id }, { p2_id }']['board']=['blue_square', 'blue_square', 'blue_square', 
-                                                         'blue_square', 'blue_square', 'blue_square', 
-                                                         'blue_square', 'blue_square', 'blue_square']
+    current_games_data[f'{ p_id }, { p2_id }']['board']=['🟦', '🟦', '🟦', 
+                                                         '🟦', '🟦', '🟦', 
+                                                         '🟦', '🟦', '🟦']
 
     overwrite_current_games(current_games_data)
     delete_from_queue(p_id)
@@ -216,7 +228,18 @@ def is_set_emoji(p_id):
 def set_emoji(p_id, reaction):
     current_games_data = get_current_games()
     player_game = get_player_game(p_id)
+    opponent_id = get_opponent(p_id)
 
     current_games_data[player_game][f'{ p_id }'] = reaction
+    current_games_data[player_game]['ready?'] = current_games_data[player_game][f'{ p_id }'] != None and current_games_data[player_game][f'{ opponent_id }'] != None
 
     overwrite_current_games(current_games_data)
+
+# gets the name of the opponent
+def get_opponent(p_id):
+    player_game = get_player_game(p_id)
+
+    if (player_game.find(f'{ p_id }') == 0):
+        return int(player_game[player_game.find(',') + 1:len(player_game)])
+    else:
+        return int(player_game[0:player_game.find(',')])

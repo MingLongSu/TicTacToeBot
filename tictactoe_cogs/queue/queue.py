@@ -5,7 +5,7 @@ from discord import Embed
 from discord import Member
 from discord import Colour
 
-from tictactoe_cogs.queue.queue_helpers import add_to_current_games, add_to_queue, delete_from_queue, get_ttt_channel, initialise_player_profile, initialise_queue, is_in_game, is_queue_empty, is_queue_full, is_queue_spam, is_set_emoji, make_queue_display, set_emoji
+from tictactoe_cogs.queue.queue_helpers import add_to_current_games, add_to_queue, delete_from_queue, get_ttt_channel, initialise_player_profile, initialise_queue, is_game_ready, is_in_game, is_queue_empty, is_queue_full, is_queue_spam, is_set_emoji, make_queue_display, set_emoji
 
 class Queue(commands.Cog):
     def __init__(self, ttt):
@@ -197,13 +197,13 @@ class Queue(commands.Cog):
         ttt_channel = self.ttt.get_channel(get_ttt_channel(context.guild.id))
 
         # check if in game
-        is_gaming = is_in_game(context.author.id)
+        is_ready = is_game_ready(context.author.id)
 
         # check if emoji has already been set
         is_emojied = is_set_emoji(context.author.id)
 
         # checks whether emoji has been set and is gaming
-        if (not is_emojied and not is_gaming):
+        if (not is_emojied and not is_ready):
             react_msg = Embed(
                 title=(f':wave: Hi there, { context.author.name }!'),
                 description=(f'React to this message using an emoji in order to set your in game piece!'),

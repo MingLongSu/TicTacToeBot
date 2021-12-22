@@ -32,6 +32,9 @@ ttt.load_extension('tictactoe_cogs.set_ttt_channel.set_ttt_channel')
 # loading queue cog
 ttt.load_extension('tictactoe_cogs.queue.queue')
 
+# loading play cog
+ttt.load_extension('tictactoe_cogs.play.play')
+
 # to ensure that the bot is running
 @ttt.event
 async def on_ready():

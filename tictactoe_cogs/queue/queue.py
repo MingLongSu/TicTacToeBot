@@ -215,7 +215,7 @@ class Queue(commands.Cog):
 
             # waiting for player to set in game piece
             try:
-                reaction, user = await self.ttt.wait_for('reaction_add', timeout=60, check=lambda reaction, user : user == context.author)
+                reaction, user = await self.ttt.wait_for('reaction_add', timeout=60, check=lambda reaction, user : user == context.author and str(reaction.emoji) != '🟦')
 
                 # embed to signal the confirmation of a newly set game piece
                 edited_react_msg=Embed(

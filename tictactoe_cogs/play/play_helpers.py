@@ -89,3 +89,47 @@ def add_play(p_id, reaction):
     current_games_data[player_game]['board'] = board
 
     overwrite_current_games(current_games_data)
+
+# checks for a winner
+def is_winner(p_id):
+    player_games_stats = get_player_game_stats(p_id)
+    board = player_games_stats['board']
+    p_piece = get_emoji(p_id)
+
+    # rows
+    if (str(board[0]) == str(board[1]) == str(board[2]) == str(p_piece)):
+        return p_id
+    elif (str(board[3]) == str(board[4]) == str(board[5]) == str(p_piece)):
+        return p_id
+    elif (str(board[6]) == str(board[7]) == str(board[8]) == str(p_piece)): 
+        return p_id
+    # columns
+    elif (str(board[0]) == str(board[3]) == str(board[6]) == str(p_piece)): 
+        return p_id
+    elif (str(board[1]) == str(board[4]) == str(board[7]) == str(p_piece)): 
+        return p_id
+    elif (str(board[2]) == str(board[5]) == str(board[8]) == str(p_piece)): 
+        return p_id
+    # diagonals
+    elif (str(board[6]) == str(board[7]) == str(board[8]) == str(p_piece)): 
+        return p_id
+    elif (str(board[6]) == str(board[7]) == str(board[8]) == str(p_piece)): 
+        return p_id
+    else:
+        return None
+
+# checks for a tie
+def is_tie(p_id):
+    player_game_stats = get_player_game_stats(p_id)
+    board = player_game_stats['board']
+
+    is_tied = True
+
+    for i in range(len(board)):
+        if (board[i] == '🟦'):
+            is_tied = False 
+            break
+
+    return is_tied
+        
+    

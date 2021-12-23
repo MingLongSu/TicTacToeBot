@@ -1,6 +1,6 @@
 import json
 
-from tictactoe_cogs.queue.queue_helpers import get_player_game_stats
+from tictactoe_cogs.queue.queue_helpers import get_current_games, get_emoji, get_opponent, get_player_game, get_player_game_stats, overwrite_current_games
 
 # gets the game grid for a particular match
 def get_board(p_id):
@@ -52,3 +52,40 @@ def get_empty_positions(p_id):
             empty_positions.append(reactionable_emojis[f'{ i + 1 }'])
         
     return empty_positions
+
+# checks if the player made a legal move on the board
+def correct_reaction(board_positions, reaction):
+    is_correct_reaction = False
+
+    for i in range(len(board_positions)):
+        if (str(reaction) == str(board_positions[i])):
+            is_correct_reaction = True
+            break
+    
+    return is_correct_reaction
+
+# sets the turn to the next player
+def set_next_turn(p_id):
+    current_games_data = get_current_games()
+    player_game = get_player_game(p_id)
+    opponent = get_opponent(p_id)
+
+    current_games_data[player_game]['turn'] = opponent
+
+    overwrite_current_games(current_games_data)
+
+# adds the play to the match board
+def add_play(p_id, reaction):
+    current_games_data = get_current_games()
+    player_game = get_player_game(p_id)
+    player_emoji = get_emoji(p_id)
+
+    board = current_games_data[player_game]['board']
+
+    index = int(str(reaction)[0:1]) - 1
+
+    board[index] = str(player_emoji)
+
+    current_games_data[player_game]['board'] = board
+
+    overwrite_current_games(current_games_data)

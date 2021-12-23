@@ -1,6 +1,8 @@
 import json
 import random
 
+from discord import player
+
 # gets the ttt channel
 def get_ttt_channel(guild_id):
     with open('./data/all_guilds.json', 'r') as file:
@@ -234,6 +236,12 @@ def set_emoji(p_id, reaction):
     current_games_data[player_game]['ready?'] = current_games_data[player_game][f'{ p_id }'] != None and current_games_data[player_game][f'{ opponent_id }'] != None
 
     overwrite_current_games(current_games_data)
+
+# gets the emoji set by a user
+def get_emoji(p_id):
+    player_game_stats = get_player_game_stats(p_id)
+    
+    return player_game_stats[f'{ p_id }']
 
 # gets the name of the opponent
 def get_opponent(p_id):

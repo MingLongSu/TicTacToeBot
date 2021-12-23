@@ -1,6 +1,4 @@
-import json
-
-from tictactoe_cogs.queue.queue_helpers import get_current_games, get_emoji, get_opponent, get_player_game, get_player_game_stats, overwrite_current_games
+from tictactoe_cogs.queue.queue_helpers import get_current_games, get_emoji, get_opponent, get_player_game, get_player_game_stats, get_player_profiles_data, overwrite_current_games, overwrite_player_profiles_data
 
 # gets the game grid for a particular match
 def get_board(p_id):
@@ -132,4 +130,27 @@ def is_tie(p_id):
 
     return is_tied
         
-    
+# add wins to a player profile
+def add_wins(p_id):
+    player_profiles_data = get_player_profiles_data()
+
+    player_profiles_data[f'{ p_id }']['wins'] += 1
+
+    overwrite_player_profiles_data(player_profiles_data)
+
+# add losses to a player profile
+def add_losses(p_id):
+    player_profiles_data = get_player_profiles_data()
+
+    player_profiles_data[f'{ p_id }']['losses'] += 1
+
+    overwrite_player_profiles_data(player_profiles_data)
+
+# concludes the game between two players (removes game from current_games data)
+def conclude_game(p_id):
+    current_games = get_current_games()
+    player_game = get_player_game(p_id)
+
+    del current_games[player_game]
+
+    overwrite_current_games(current_games)

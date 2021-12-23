@@ -132,7 +132,7 @@ class Queue(commands.Cog):
                 description=('If you didn\'t know, bots don\'t have a queue! Also, the only bot you can face is the master of tic tac toe being me.'),
                 colour=Colour.from_rgb(246,154,7)
             )
-            bot_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+            bot_msg.set_thumbnail(url=member.avatar_url)
             bot_msg.set_footer(text='Use \'>queue_of @player_name\' to check another player\'s queue!', icon_url=self.ttt.user.avatar_url)
             await ttt_channel.send(embed=bot_msg)
         else:
@@ -143,7 +143,7 @@ class Queue(commands.Cog):
                 description=(''), 
                 colour=Colour.from_rgb(246,154,7)
             )
-            player_queue_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+            player_queue_msg.set_thumbnail(url=member.avatar_url)
             player_queue_msg.set_footer(text='Use \'>queue_of @player_name\' to check another player\'s queue!', icon_url=self.ttt.user.avatar_url)
             for i in range(len(player_queue_data)):
                 player_queue_msg.add_field(

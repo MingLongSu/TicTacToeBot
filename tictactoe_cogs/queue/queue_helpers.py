@@ -92,13 +92,13 @@ def make_queue_display(p_id):
     def recurse_add(start, end, queue, display_queue): 
         if (queue[start % 5] != None): 
             curr_queued_player_id = queue[start % 5]
-            curr_queued_payer_wins = player_profile_data[f'{ p_id }']['wins']
-            curr_queue_player_losses = player_profile_data[f'{ p_id }']['losses']
+            curr_queued_payer_wins = player_profile_data[f'{ queue[start % 5] }']['wins']
+            curr_queue_player_losses = player_profile_data[f'{ queue[start % 5] }']['losses']
             display_queue.append([curr_queued_player_id, curr_queued_payer_wins, curr_queue_player_losses])
         else:
             display_queue.append([queue[start % 5], 'N/A', 'N/A'])
 
-        if (start == end):
+        if (start % 5 == end):
             return display_queue
         else:
             start += 1

@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord import Embed
 from discord import Colour
 
-from tictactoe_cogs.play.play_helpers import add_play, correct_reaction, get_board, get_empty_positions, get_turn, is_tie, is_winner, set_next_turn
+from tictactoe_cogs.play.play_helpers import add_losses, add_play, add_wins, conclude_game, correct_reaction, get_board, get_empty_positions, get_turn, is_tie, is_winner, set_next_turn
 from tictactoe_cogs.queue.queue_helpers import get_opponent, get_ttt_channel, is_game_ready
 
 class Play(commands.Cog):
@@ -60,6 +60,9 @@ class Play(commands.Cog):
                 # removes the reactions available after play is made
                 await sent_board_msg.clear_reactions()
 
+                # updates the board so that user is given confirmation of play going through
+                await sent_board_msg.edit(content=get_board(user.id))
+
                 # checks for a winner
                 exists_winner_1 = is_winner(user.id)
                 exists_winner_2 = is_winner(new_opponent.id)
@@ -76,15 +79,33 @@ class Play(commands.Cog):
                     win_msg_1.set_thumbnail(url=user.avatar_url)
                     win_msg_1.set_footer(text='Use \'>request @player_name\' to request games against others!', icon_url=self.ttt.user.avatar_url)
                     await ttt_channel.send(embed=win_msg_1)
+
+                    # adding wins to the winner
+                    add_wins(user.id)
+
+                    # adding losses to the loser
+                    add_losses(new_opponent.id)
+
+                    # conclude game
+                    conclude_game(user.id)
                 elif (exists_winner_2 != None): # if second player is winner
                     win_msg_2=Embed(
                         title=(f':partying_face: { new_opponent.name } has won against { user.name }!'),
-                        description=(f':sparkles: Congratulations to both { new_opponent.mention } and { user.mention }, you both played exceptionally!'),
+                        description=(f':sparkles: Congratulations to both { new_opponent.mention } and { user.mention }! You both played exceptionally!'),
                         colour = Colour.from_rgb(246,154,7)
                     )
                     win_msg_2.set_thumbnail(url=user.avatar_url)
                     win_msg_2.set_footer(text='Use \'>request @player_name\' to request games against others!', icon_url=self.ttt.user.avatar_url)
                     await ttt_channel.send(embed=win_msg_2)
+
+                    # adding wins to the winner
+                    add_wins(new_opponent.id)
+
+                    # adding losses to the loser
+                    add_losses(user.id)
+
+                    # conclude game 
+                    conclude_game(user.id)
                 elif (is_tied): # if there is a tie
                     tie_msg=Embed(
                         title=(f':g::g: { user.name } has tied against { new_opponent.name }'), 
@@ -94,9 +115,6 @@ class Play(commands.Cog):
                     tie_msg.set_thumbnail(url=self.ttt.user.avatar_url)
                     tie_msg.set_footer(text='Use \'>request @player_name\' to request games against others!', icon_url=self.ttt.user.avatar_url)
                     await ttt_channel.send(embed=tie_msg)
-
-                # updates the board so that user is given confirmation of play going through
-                await sent_board_msg.edit(content=get_board(user.id))
             except asyncio.TimeoutError: # when the player of the current turn has yet to respond
                 timeout_msg=Embed(
                     title=(':no_entry_sign: Oh, an error occurred!'),

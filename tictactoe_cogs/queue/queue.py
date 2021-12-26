@@ -5,7 +5,7 @@ from discord import Embed
 from discord import Member
 from discord import Colour
 
-from tictactoe_cogs.queue.queue_helpers import add_to_current_games, add_to_queue, delete_from_queue, get_ttt_channel, initialise_player_profile, initialise_queue, is_game_ready, is_in_game, is_queue_empty, is_queue_full, is_queue_spam, is_set_emoji, make_queue_display, set_emoji
+from tictactoe_cogs.queue.queue_helpers import add_bot_to_current_game, add_to_current_games, add_to_queue, delete_from_queue, get_opponent, get_ttt_channel, initialise_player_profile, initialise_queue, is_game_ready, is_in_game, is_queue_empty, is_queue_full, is_queue_spam, is_set_emoji, make_queue_display, set_emoji
 
 class Queue(commands.Cog):
     def __init__(self, ttt):
@@ -23,8 +23,38 @@ class Queue(commands.Cog):
         ttt_channel = self.ttt.get_channel(get_ttt_channel(context.guild.id))
 
         if (member.id == self.ttt.user.id): # playing against the bot
-            print("Feature to implement for another day")
+            p1 = context.author
 
+            # initialiasing the queue of the requesting player
+            initialise_queue(p1.id)
+
+            # initialising the player profile of the requesting player
+            initialise_player_profile(p1.id)
+
+            # checks if the requesting player is already in game
+            is_gaming = is_in_game(p1.id)
+
+            if (not is_gaming):
+                bot = self.ttt.user
+                add_bot_to_current_game(p1.id, bot.id)
+
+                bot_game_msg=Embed(
+                    title=(f':x: { p1.name } vs. { bot.name }! :o:'),
+                description=(f'{ bot.mention } has accepted a game against { p1.mention }! May the greater player be victorious!'),
+                colour=Colour.from_rgb(246,154,7)
+                )
+                bot_game_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+                bot_game_msg.set_footer(text='Use \'>set_piece\' to select your tic-tac-toe game piece!')
+                await ttt_channel.send(embed=bot_game_msg)
+            else:
+                fail_msg=Embed(
+                    title=(f':no_entry_sign: Oh, { context.author.name }, an error occurred!'),
+                    description=('Your\'re currently in a match! Please finish your game first before matching with me! You\'re gonna need the mental power!\n- TTT Bot :)'),
+                    colour=Colour.from_rgb(246,154,7)
+                )
+                fail_msg.set_footer(text=f'Use \'>request @player_name\' to request a game with another player!', icon_url=self.ttt.user.avatar_url)
+                fail_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+                await ttt_channel.send(embed=fail_msg)
         elif (context.author.id != member.id and member.bot == False): # queueing with another player
             # establishing p1 and p2 for ease of memory
             p1 = context.author
@@ -170,11 +200,15 @@ class Queue(commands.Cog):
         # checks if the acceptor or player are already in a game
         is_gaming = is_in_game(context.author.id)
 
-        if (not is_empty and not is_gaming):
+        # checks if the opponent is already in game
+        opponent_id = get_opponent(context.author.id)
+        opponent_is_gaming = is_in_game(opponent_id)
+
+        if (not is_empty and not is_gaming and not opponent_is_gaming):
             p2 = self.ttt.get_user(add_to_current_games(context.author.id))
 
             challenge_msg=Embed(
-                title=(f'{ context.author.name } vs. { p2.name }!'),
+                title=(f':x: { context.author.name } vs. { p2.name }! :o:'),
                 description=(f'{ context.author.mention } has accepted a game against { p2.mention }! May the greater player be victorious!'),
                 colour=Colour.from_rgb(246,154,7)
             )

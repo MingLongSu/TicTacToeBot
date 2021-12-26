@@ -18,9 +18,10 @@ class Play(commands.Cog):
         # check if the game of the user is ready
         is_ready = is_game_ready(context.author.id)
 
-        if (is_ready):
-            # getting opponent of the player
-            opponent = self.ttt.get_user(get_opponent(context.author.id))
+        # getting opponent of the player
+        opponent = self.ttt.get_user(get_opponent(context.author.id))
+
+        if (is_ready and not opponent.bot):
 
             # getting the current turn
             turn = get_turn(context.author.id)
@@ -125,6 +126,8 @@ class Play(commands.Cog):
                 timeout_msg.set_thumbnail(url=self.ttt.get_user(turn).avatar_url)
                 await sent_match_msg.edit(embed=timeout_msg)
                 await sent_board_msg.delete()
+        elif (is_ready and opponent.bot):
+            print("You are playing against the TTT master now!") # implement the bot code here!!!
         else:
             wait_msg=Embed(
                 title=(f':no_entry_sign: An Issue Occurred!'),

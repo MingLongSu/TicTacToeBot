@@ -251,3 +251,24 @@ def get_opponent(p_id):
         return int(player_game[player_game.find(',') + 1:len(player_game)])
     else:
         return int(player_game[0:player_game.find(',')])
+
+# adds a player vs bot game into the current games list
+def add_bot_to_current_game(p_id, bot_id):
+    current_games_data = get_current_games()
+
+    turn = random.randrange(0, 2)
+    if (turn == 0):
+        turn = p_id
+    else:
+        turn = bot_id
+
+    current_games_data[f'{ p_id }, { bot_id }']={}
+    current_games_data[f'{ p_id }, { bot_id }']['turn']=turn
+    current_games_data[f'{ p_id }, { bot_id }']['ready?']=False
+    current_games_data[f'{ p_id }, { bot_id }'][f'{ p_id }']=None
+    current_games_data[f'{ p_id }, { bot_id }'][f'{ bot_id }']='🤖'
+    current_games_data[f'{ p_id }, { bot_id }']['board']=['🟦', '🟦', '🟦', 
+                                                          '🟦', '🟦', '🟦', 
+                                                          '🟦', '🟦', '🟦']
+
+    overwrite_current_games(current_games_data)

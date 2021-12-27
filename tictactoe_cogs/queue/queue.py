@@ -1,4 +1,5 @@
 import asyncio
+from os import error
 
 from discord.ext import commands
 from discord import Embed
@@ -231,63 +232,62 @@ class Queue(commands.Cog):
         ttt_channel = self.ttt.get_channel(get_ttt_channel(context.guild.id))
 
         # check if in game
-        is_ready = is_game_ready(context.author.id)
+        is_gaming = is_in_game(context.author.id)
 
-        # check if emoji has already been set
-        is_emojied = is_set_emoji(context.author.id)
+        # checks whether player is in a game at least
+        if (is_gaming):
+            # check if emoji has already been set
+            is_emojied = is_set_emoji(context.author.id)
 
-        # checks whether emoji has been set and is gaming
-        if (not is_emojied and not is_ready):
-            react_msg = Embed(
-                title=(f':wave: Hi there, { context.author.name }!'),
-                description=(f'React to this message using an emoji in order to set your in game piece!'),
-                colour = Colour.from_rgb(246,154,7)
-            )
-            react_msg.set_thumbnail(url=self.ttt.user.avatar_url)
-
-            sent_react_msg = await ttt_channel.send(embed=react_msg)
-
-            # waiting for player to set in game piece
-            try:
-                reaction, user = await self.ttt.wait_for('reaction_add', timeout=60, check=lambda reaction, user : user == context.author and str(reaction.emoji) != '🟦')
-
-                # embed to signal the confirmation of a newly set game piece
-                edited_react_msg=Embed(
-                    title=(f':white_check_mark: { user.name }, you have set your game piece to { str(reaction.emoji) }!'),
-                    description=('I wish you good luck with your game!'),
+            if (not is_emojied):
+                react_msg = Embed(
+                    title=(f':wave: Hi there, { context.author.name }!'),
+                    description=(f'React to this message using an emoji in order to set your in game piece!'),
                     colour = Colour.from_rgb(246,154,7)
                 )
-                edited_react_msg.set_thumbnail(url=self.ttt.user.avatar_url)
-                edited_react_msg.set_footer(text='Use \'>play\' to attempt to start the Tic-Tac_Toe game!', icon_url=self.ttt.user.avatar_url)
+                react_msg.set_thumbnail(url=self.ttt.user.avatar_url)
 
-                await sent_react_msg.edit(embed=edited_react_msg)
+                sent_react_msg = await ttt_channel.send(embed=react_msg)
 
-                # setting emoji in the game_data
-                set_emoji(context.author.id, str(reaction))
-            except asyncio.TimeoutError:
-                expired_msg = Embed(
-                    title=(":no_entry_sign: Oh, your time has expired!"),
-                    description=('Use \'>ttt_set_emoji\' again to set your emoji!'),
-                    colour = Colour.from_rgb(246,154,7)
+                # waiting for player to set in game piece
+                try:
+                    reaction, user = await self.ttt.wait_for('reaction_add', timeout=60, check=lambda reaction, user : user == context.author and str(reaction.emoji) != '🤖' and str(reaction.emoji) != '🟦')
+
+                    # embed to signal the confirmation of a newly set game piece
+                    edited_react_msg=Embed(
+                        title=(f':white_check_mark: { user.name }, you have set your game piece to { str(reaction.emoji) }!'),
+                        description=('I wish you good luck with your game!'),
+                        colour = Colour.from_rgb(246,154,7)
+                    )
+                    edited_react_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+                    edited_react_msg.set_footer(text='Use \'>play\' to attempt to start the Tic-Tac_Toe game!', icon_url=self.ttt.user.avatar_url)
+
+                    await sent_react_msg.edit(embed=edited_react_msg)
+
+                    # setting emoji in the game_data
+                    set_emoji(context.author.id, str(reaction))
+                except asyncio.TimeoutError:
+                    expired_msg = Embed(
+                        title=(":no_entry_sign: Oh, your time has expired!"),
+                        description=('Use \'>ttt_set_emoji\' again to set your emoji!'),
+                        colour = Colour.from_rgb(246,154,7)
+                    )
+                    expired_msg.set_thumbnail(url=self.ttt.user.avatar_url)
+
+                    await ttt_channel.send(embed=expired_msg)
+            else:
+                error_message=Embed(
+                    title=(':no_entry_sign: Oh no, an error occurred! Your game piece has already been set!'),
+                    description=('Sorry, but setting emojis are one and done!'),
+                    colour=Colour.from_rgb(246,154,7)
                 )
-                expired_msg.set_thumbnail(url=self.ttt.user.avatar_url)
-
-                await ttt_channel.send(embed=expired_msg)
+                error_message.set_thumbnail(url=self.ttt.user.avatar_url)
+                await ttt_channel.send(embed=error_message)
         else:
             error_message=Embed(
-                title=(':no_entry_sign: Oh no, an error occurred!'),
-                description=('One of following two issues might have happened:'),
+                title=(':no_entry_sign: Oh no, an error occurred!\nYou\'re not even in a game yet!'),
+                description=('Use \'>request @user_name\' if you want to try to start a game with someone or play against me!'),
                 colour = Colour.from_rgb(246,154,7)
-            )
-            error_message.add_field(
-                name=('Issue #1: Emoji already set!'),
-                value=('Sorry, but setting emojis are one and done!'),
-                inline=False
-            )
-            error_message.add_field(
-                name=('Issue #2: Already in game!'),
-                value=('Switching pieces mid game is kinda cheating!'),
-                inline=False
             )
             error_message.set_thumbnail(url=self.ttt.user.avatar_url)
             await ttt_channel.send(embed=error_message)

@@ -68,7 +68,10 @@ def set_next_turn(p_id):
     player_game = get_player_game(p_id)
     opponent = get_opponent(p_id)
 
-    current_games_data[player_game]['turn'] = opponent
+    if (current_games_data[player_game]['turn'] == p_id): 
+        current_games_data[player_game]['turn'] = opponent
+    else:
+        current_games_data[player_game]['turn'] = p_id
 
     overwrite_current_games(current_games_data)
 
@@ -83,6 +86,21 @@ def add_play(p_id, reaction):
     index = int(str(reaction)[0:1]) - 1
 
     board[index] = str(player_emoji)
+
+    current_games_data[player_game]['board'] = board
+
+    overwrite_current_games(current_games_data)
+
+# adds the play to the match board for the bot, takes in the player and an index from the AI file
+def add_play_bot(p_id, index):
+    current_games_data = get_current_games()
+    player_game = get_player_game(p_id)
+    turn = current_games_data[player_game]['turn']
+    turn_emoji = get_emoji(turn)
+
+    board = current_games_data[player_game]['board']
+
+    board[index] = str(turn_emoji)
 
     current_games_data[player_game]['board'] = board
 
@@ -109,9 +127,9 @@ def is_winner(p_id):
     elif (str(board[2]) == str(board[5]) == str(board[8]) == str(p_piece)): 
         return p_id
     # diagonals
-    elif (str(board[6]) == str(board[7]) == str(board[8]) == str(p_piece)): 
+    elif (str(board[0]) == str(board[4]) == str(board[8]) == str(p_piece)): 
         return p_id
-    elif (str(board[6]) == str(board[7]) == str(board[8]) == str(p_piece)): 
+    elif (str(board[2]) == str(board[4]) == str(board[6]) == str(p_piece)): 
         return p_id
     else:
         return None
@@ -148,9 +166,16 @@ def add_losses(p_id):
 
 # concludes the game between two players (removes game from current_games data)
 def conclude_game(p_id):
-    current_games = get_current_games()
+    current_games_data = get_current_games()
     player_game = get_player_game(p_id)
 
-    del current_games[player_game]
+    del current_games_data[player_game]
 
-    overwrite_current_games(current_games)
+    overwrite_current_games(current_games_data)
+
+# gets the board data
+def get_board_data(p_id):
+    current_games_data = get_current_games()
+    player_game = get_player_game(p_id)
+
+    return current_games_data[player_game]['board']

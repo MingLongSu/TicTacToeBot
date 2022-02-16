@@ -3,7 +3,7 @@
 Discord bot built using Discod's bot API and Python3
 
 As we sit idly by waiting for the COVID-19 quarantine to come to an end, we can't help but reminisce on the times before the quarantine; when the world was still "normal."
-We even think back as far as the kindergarten days, playing typical games like Tic Tac Toe or checkers with friends, but again, you're reminded of how you're not separated from
+We even think back as far as the kindergarten days, playing typical games like Tic Tac Toe or checkers with friends, but again, you're reminded of how you're now separated from
 your friends and family members.
 
 As a result, to make use of the currently virtual world, and the sheer popularity of Discord which helps to keep us connected with our friends and family, this project was 

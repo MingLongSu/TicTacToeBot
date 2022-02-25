@@ -260,7 +260,7 @@ class Queue(commands.Cog):
                         colour = Colour.from_rgb(246,154,7)
                     )
                     edited_react_msg.set_thumbnail(url=self.ttt.user.avatar_url)
-                    edited_react_msg.set_footer(text='Use \'>play\' to attempt to start the Tic-Tac_Toe game!', icon_url=self.ttt.user.avatar_url)
+                    edited_react_msg.set_footer(text='Use \'>play\' to attempt to start the tic-tac-toe game!', icon_url=self.ttt.user.avatar_url)
 
                     await sent_react_msg.edit(embed=edited_react_msg)
 

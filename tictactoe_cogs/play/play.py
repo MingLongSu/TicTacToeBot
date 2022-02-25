@@ -206,7 +206,7 @@ class Play(commands.Cog):
                 elif (is_tied):
                     tie_msg=Embed(
                         title=(f':regional_indicator_g::regional_indicator_g: { context.author.name } has tied against { self.ttt.user.name }'), 
-                        description=(f':sparkles: Well played you, { context.author.mention }! You were able to tie against me!'), 
+                        description=(f':sparkles: Well played by you, { context.author.mention }! You were able to tie against me!'), 
                         colour = Colour.from_rgb(246,154,7)
                     )
                     tie_msg.set_thumbnail(url=self.ttt.user.avatar_url)

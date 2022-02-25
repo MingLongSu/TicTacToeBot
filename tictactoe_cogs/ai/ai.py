@@ -3,7 +3,6 @@ from tictactoe_cogs.ai.ai_helpers import explore
 
 
 def get_best_play(board_data, p_emoji, bot_emoji):
-    print(board_data)
     best_play_value = -1000
     best_play = -1
 
